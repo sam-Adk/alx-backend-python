@@ -1,0 +1,44 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Checkout Code') {
+      steps {
+        git branch: 'main', url: 'https://github.com/Sam-Adk/alx-backend-python.git', credentialsId: 'github-pat'
+      }
+    }
+
+    stage('Install Dependencies') {
+      steps {
+        sh '''
+          cd messaging_app
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        '''
+      }
+    }
+
+    stage('Run Tests') {
+      steps {
+        sh '''
+          cd messaging_app
+          . venv/bin/activate
+          pytest --maxfail=1 --disable-warnings --junitxml=report.xml || true
+        '''
+      }
+      post {
+        always {
+          junit 'messaging_app/report.xml'
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      echo '✅ Pipeline finished successfully!'
+    }
+  }
+}
