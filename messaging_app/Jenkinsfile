@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')  // 👈 You must create this in Jenkins
-        IMAGE_NAME = 'samuel254/messaging_app'  // 👈 Change to your Docker Hub username/repo
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/Sam-Adk/alx-backend-python.git'
+                git branch: 'main',
+                    url: 'https://github.com/Sam-Adk/alx-backend-python.git'
             }
         }
 
@@ -17,7 +17,7 @@ pipeline {
             steps {
                 dir('messaging_app') {
                     script {
-                        sh 'docker build -t $IMAGE_NAME:latest .'
+                        sh 'docker build -t samuel254/messaging_app:latest .'
                     }
                 }
             }
@@ -26,7 +26,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
                 }
             }
         }
@@ -34,7 +34,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    sh 'docker push $IMAGE_NAME:latest'
+                    sh 'docker push samuel254/messaging_app:latest'
                 }
             }
         }
@@ -42,10 +42,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Docker image built and pushed successfully!"
+            echo '✅ Build and push successful!'
         }
         failure {
-            echo "❌ Build failed! Check Jenkins logs."
+            echo '❌ Build failed! Check Jenkins logs.'
         }
     }
 }
